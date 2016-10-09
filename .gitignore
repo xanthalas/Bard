@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BardDaemon/.vs/BardDaemon/v14
+/BardDaemon/packages
+/bardUI/.vs/Bard/v14
+/bardUI/Bard/bin/Debug
+/bardUI/Bard/obj/Debug
+/bardUI/packages
+/bardUI/Bard/Bard.csproj.user
