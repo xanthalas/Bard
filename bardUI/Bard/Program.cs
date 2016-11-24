@@ -41,11 +41,19 @@ namespace Bard
         {
             Command command = buildCommand(args);
             
-            if (command == null)
+            if (command == null ||
+                command.Cmd.ToLower() == "help" ||
+                command.Cmd.ToLower() == "-help" ||
+                command.Cmd.ToLower() == "--help" ||
+                command.Cmd.ToLower() == "-h" ||
+                command.Cmd.ToLower() == "--h" ||
+                command.Cmd.ToLower() == "?" ||
+                command.Cmd.ToLower() == "/?"
+                )
             {
-                Console.WriteLine("Invalid command. Format is: Bard action <parameter>");
-                Console.WriteLine("                 For example: Bard playfile Creep.mp3");
-                Console.WriteLine("\n\nAvailable commands are:");
+                Console.WriteLine("Format is: Bard action <parameter>");
+                Console.WriteLine("  For example: Bard playfile Creep.mp3");
+                Console.WriteLine("\nAvailable commands are:");
 
                 writeCommands();
             }
@@ -250,31 +258,31 @@ namespace Bard
 
         private static void writeCommands()
         {
-            Console.WriteLine("start                       - Start the Bard server");
-            Console.WriteLine("addfolder     <folder>      - Load all mp3/wma/m4a files in the given folder into the playlist");
-            Console.WriteLine("addfile       <filename     - Add a single file to the end of the playlist");
-            Console.WriteLine("playfolder    <folder>      - Load all mp3/wma/m4a files in the given folder into the playlist and start playing");
-            Console.WriteLine("playfile      <filename>    - Load a single file into the playlist and play it");
-            Console.WriteLine("clear                       - Stop playback and clear the playlist");
-            Console.WriteLine("  clearplaylist ");
-            Console.WriteLine("play                        - Resume playing");
-            Console.WriteLine("  start");
-            Console.WriteLine("playpause                   - Toggle playback");
-            Console.WriteLine("  toggle");
-            Console.WriteLine("next                        - Jump to the next track in the playlist");
-            Console.WriteLine("  nexttrack");
-            Console.WriteLine("prev                        - Jump to the previous track in the playlist");
-            Console.WriteLine("  previoustrack");
-            Console.WriteLine("  prevtrack");
-            Console.WriteLine("stop                        - Stop playing (pause)");
-            Console.WriteLine("volume <0-100>              - Set playback volume between 0 (off) and 100 (max)");
-            Console.WriteLine("  vol <0-100>");
-            Console.WriteLine("playing                     - Show which track is currently playing");
-            Console.WriteLine("  nowplaying");
-            Console.WriteLine("playlist                    - Retrieve details of the current playlist");
-            Console.WriteLine("  getplaylist");
-            Console.WriteLine("getlogfile                  - Returns the path to the log file");
-            Console.WriteLine("quit                        - Stop playing and close the player");
+            Console.WriteLine("  start                       - Start the Bard server");
+            Console.WriteLine("  addfolder     <folder>      - Load all mp3/wma/m4a files in the given folder into the playlist");
+            Console.WriteLine("  addfile       <filename     - Add a single file to the end of the playlist");
+            Console.WriteLine("  playfolder    <folder>      - Load all mp3/wma/m4a files in the given folder into the playlist and start playing");
+            Console.WriteLine("  playfile      <filename>    - Load a single file into the playlist and play it");
+            Console.WriteLine("  clear                       - Stop playback and clear the playlist");
+            Console.WriteLine("    clearplaylist ");
+            Console.WriteLine("  play                        - Resume playing");
+            Console.WriteLine("    start");
+            Console.WriteLine("  playpause                   - Toggle playback");
+            Console.WriteLine("    toggle");
+            Console.WriteLine("  next                        - Jump to the next track in the playlist");
+            Console.WriteLine("    nexttrack");
+            Console.WriteLine("  prev                        - Jump to the previous track in the playlist");
+            Console.WriteLine("    previoustrack");
+            Console.WriteLine("    prevtrack");
+            Console.WriteLine("  stop                        - Stop playing (pause)");
+            Console.WriteLine("  volume <0-100>              - Set playback volume between 0 (off) and 100 (max)");
+            Console.WriteLine("    vol <0-100>");
+            Console.WriteLine("  playing                     - Show which track is currently playing");
+            Console.WriteLine("    nowplaying");
+            Console.WriteLine("  playlist                    - Retrieve details of the current playlist");
+            Console.WriteLine("    getplaylist");
+            Console.WriteLine("  getlogfile                  - Returns the path to the log file");
+            Console.WriteLine("  quit                        - Stop playing and shut down the player");
 
         }
 
