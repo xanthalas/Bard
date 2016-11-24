@@ -36,8 +36,8 @@ namespace BardDaemon
 {
     public class BardDaemon
     {
-        private static IWavePlayer waveOutDevice = null;
-        private static WaveStream audioFileReader;
+        private static IWavePlayer wavePlayer = null;
+        private static AudioFileReader audioFileReader;
         private static bool playbackInitialised = false;
 
         /// <summary>
@@ -63,7 +63,6 @@ namespace BardDaemon
                 if (ipAddressString == null || ipAddressString.Length < 1)
                 {
                     ipAddressString = "127.0.0.1";
-                    Console.WriteLine("Setting ip address to 127.0.0.1");
                     writeToLog("Setting ip address to 127.0.0.1");
                 }
                 IPAddress ipAddress = IPAddress.Parse(ipAddressString);
@@ -72,7 +71,6 @@ namespace BardDaemon
                 var portString = ConfigurationManager.AppSettings["port"];
                 if (portString == null || portString.Length < 1)
                 {
-                    Console.WriteLine("Setting port to 8000");
                     writeToLog("Setting port to 8000");
                     portString = "8000";
                 }
@@ -86,16 +84,14 @@ namespace BardDaemon
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Couldn't convert the port. Message {e.Message}");
                     writeToLog($"Couldn't convert the port. Message {e.Message}");
                     //The port will default to 8000
                 }
                 // Initializes the Listener
-                Console.WriteLine($"Trying to connect to {ipAddress.Address} on port {port}");
                 writeToLog($"Trying to connect to {ipAddress.Address} on port {port}");
                 server = new TcpListener(ipAddress, port);
 
-                // Start Listeneting at the specified port
+                // Start Listening at the specified port
                 server.Start();
 
                 Console.WriteLine($"Server running on address {ipAddressString} Port: {port}");
@@ -114,12 +110,8 @@ namespace BardDaemon
                 // Enter the listening loop.
                 while (!quit)
                 {
-                    //Console.Write("Waiting for a connection... ");
-
                     // Perform a blocking call to accept requests.
-                    // You could also user server.AcceptSocket() here.
                     TcpClient client = server.AcceptTcpClient();
-                    //Console.WriteLine("Connected!");
 
                     data = null;
 
@@ -157,7 +149,6 @@ namespace BardDaemon
 
                     // Send back a response.
                     stream.Write(msg, 0, msg.Length);
-                    //Console.WriteLine("Sent: {0}", data);
 
                     // Shutdown and end connection
                     client.Close();
@@ -166,7 +157,6 @@ namespace BardDaemon
             }
             catch (SocketException e)
             {
-                Console.WriteLine($"SocketException: {e}");
                 writeToLog($"SocketException: {e}");
             }
             finally
@@ -178,7 +168,6 @@ namespace BardDaemon
 
         private static void processCommand(Command command)
         {
-            //Console.WriteLine($"Processing command {command.ToString()}");
             if (command == null)
             {
                 return;
@@ -201,7 +190,6 @@ namespace BardDaemon
                     }
                     else
                     {
-                        Console.WriteLine($"Cannot initialise playback of file {command.StringArgument}");
                         writeToLog($"Cannot initialise playback of file {command.StringArgument}");
                     }
                     break;
@@ -216,7 +204,6 @@ namespace BardDaemon
                     }
                     else
                     {
-                        Console.WriteLine($"Cannot initialise playback of file {command.StringArgument}");
                         writeToLog($"Cannot initialise playback of file {command.StringArgument}");
                     }
                     break;
@@ -228,7 +215,6 @@ namespace BardDaemon
                     }
                     else
                     {
-                        Console.WriteLine($"Cannot initialise playback of file {command.StringArgument}");
                         writeToLog($"Cannot initialise playback of file {command.StringArgument}");
                     }
                     break;
@@ -244,7 +230,7 @@ namespace BardDaemon
                     }
                     else
                     {
-                        Console.WriteLine($"Cannot initialise playback of file {command.StringArgument}");
+                        writeToLog($"Cannot initialise playback of file {command.StringArgument}");
                     }
                     break;
 
@@ -254,7 +240,6 @@ namespace BardDaemon
                     finishPlayback();
                     playlist.Clear();
                     nowPlayingPlaylistIndex = 0;
-                    Console.WriteLine($"Playlist cleared. Now contains {playlist.Count} entries");
                     writeToLog($"Playlist cleared. Now contains {playlist.Count} entries");
                     userStopped = false;
                     break;
@@ -349,17 +334,21 @@ namespace BardDaemon
                     if (command.IntegerArgument >= 0 && command.IntegerArgument <= 100)
                     {
                         float newVolume = (float)command.IntegerArgument / 100f;
-                        //                        Console.WriteLine($"IntegerArgument is {command.IntegerArgument} so setting volume to {newVolume}");
                         writeToLog($"Setting volume to {newVolume}");
-                        if (audioFileReader.GetType() == typeof(Mp3FileReader))
-                        {
-                            var mp3fr = audioFileReader as AudioFileReader;
 
-                            if (mp3fr != null)
-                            {
-                                mp3fr.Volume = newVolume;
-                            }
+                        try
+                        {
+                            audioFileReader.Volume = newVolume;
                         }
+                        catch (Exception e)
+                        {
+                            writeToLog("An exception occurred while attempting to change the volume. The exception text is:");
+                            writeToLog(e.Message);
+                            if (e.InnerException != null)
+                            {
+                                writeToLog($"Inner exception: {e.InnerException.Message}");
+                            }
+                        }                            
                     }
                     break;
 
@@ -426,12 +415,11 @@ namespace BardDaemon
         {
             playbackInitialised = false;
 
-            //Console.WriteLine($"In initialisePlayback. nowPlayingPlaylistIndex = {nowPlayingPlaylistIndex}. Playlist count = {playlist.Count}");
             if (nowPlayingPlaylistIndex < playlist.Count)
             {
-                Console.WriteLine($"Playing {playlist[nowPlayingPlaylistIndex]}");
                 writeToLog($"Initialising playback of {playlist[nowPlayingPlaylistIndex]}");
                 bool validReaderCreated = false;
+
                 try
                 {
                     audioFileReader = new AudioFileReader(playlist[nowPlayingPlaylistIndex]);
@@ -442,24 +430,6 @@ namespace BardDaemon
                     validReaderCreated = false;
                 }
 
-                if (!validReaderCreated)
-                {
-                    try
-                    {
-                        audioFileReader = new WaveFileReader(playlist[nowPlayingPlaylistIndex]);
-                        validReaderCreated = true;
-                    }
-                    catch (System.InvalidOperationException)
-                    {
-                        writeToLog($"Cannot play file. It is not one of the supported formats or is corrupt. File: {playlist[nowPlayingPlaylistIndex]}");
-                        validReaderCreated = false;
-                    }
-                    catch (System.FormatException)
-                    {
-                        writeToLog($"Cannot play file. It is not one of the supported formats or is corrupt. File: {playlist[nowPlayingPlaylistIndex]}");
-                        validReaderCreated = false;
-                    }
-                }
 
                 if (!validReaderCreated)
                 {
@@ -468,17 +438,16 @@ namespace BardDaemon
                 }
                 else
                 {
-                    waveOutDevice = null;
-                    waveOutDevice = new DirectSoundOut();
-                    waveOutDevice.PlaybackStopped += WaveOutDevice_PlaybackStopped;
-                    waveOutDevice.Init(audioFileReader);
+                    wavePlayer = null;
+                    wavePlayer = new DirectSoundOut();
+                    wavePlayer.PlaybackStopped += WaveOutDevice_PlaybackStopped;
+                    wavePlayer.Init(audioFileReader);
                     nowPlayingTrack = playlist[nowPlayingPlaylistIndex];
                     playbackInitialised = true;
                 }
             }
             else
             {
-                Console.WriteLine("End of playlist reached");
                 writeToLog("End of playlist reached");
                 nowPlayingPlaylistIndex = 0;
                 userStopped = false;
@@ -506,10 +475,9 @@ namespace BardDaemon
 
         private static bool play()
         {
-            //Console.WriteLine("Playing file");
             if (playbackInitialised && !currentlyPlaying)
             {
-                waveOutDevice.Play();
+                wavePlayer.Play();
                 currentlyPlaying = true;
                 return true;
             }
@@ -523,7 +491,7 @@ namespace BardDaemon
         {
             if (playbackInitialised)
             {
-                waveOutDevice.Stop();
+                wavePlayer.Stop();
             }
 
             currentlyPlaying = false;
@@ -535,10 +503,9 @@ namespace BardDaemon
 
         private static void finishPlayback()
         {
-            //Console.WriteLine("Finishing playback");
-            if (waveOutDevice != null)
+            if (wavePlayer != null)
             {
-                waveOutDevice.Stop();
+                wavePlayer.Stop();
             }
 
             if (audioFileReader != null)
