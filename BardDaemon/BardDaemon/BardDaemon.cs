@@ -256,6 +256,7 @@ namespace BardDaemon
                     nowPlayingPlaylistIndex = 0;
                     Console.WriteLine($"Playlist cleared. Now contains {playlist.Count} entries");
                     writeToLog($"Playlist cleared. Now contains {playlist.Count} entries");
+                    userStopped = false;
                     break;
 
                 case "play":
@@ -480,6 +481,8 @@ namespace BardDaemon
                 Console.WriteLine("End of playlist reached");
                 writeToLog("End of playlist reached");
                 nowPlayingPlaylistIndex = 0;
+                userStopped = false;
+                currentlyPlaying = false;
             }
 
             return playbackInitialised;

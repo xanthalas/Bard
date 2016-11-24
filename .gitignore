@@ -4,6 +4,11 @@
 
 /BardDaemon/.vs/BardDaemon/v14
 /BardDaemon/packages
+/BardDaemon/BardDaemon/bin
+/BardDaemon/BardDaemon/obj
+/BardDaemon/BardDaemon/BardDaemon.csproj.user
+/BardDaemon/BardInterface/bin
+/BardDaemon/BardInterface/obj
 /bardUI/.vs/Bard/v14
 /bardUI/Bard/bin/Debug
 /bardUI/Bard/obj/Debug
