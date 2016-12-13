@@ -193,7 +193,18 @@ namespace Bard
             var artists = new List<string>();
             foreach (var entry in response.Playlist)
             {
-                var file = TagLib.File.Create(entry);
+                TagLib.File file;
+                try
+                {
+                    file = TagLib.File.Create(entry);
+
+                }
+                catch (Exception)
+                {
+
+                    file = null;
+                }
+
                 if (file != null)
                 {
                     tracknames.Add((file.Tag.Title != null ? file.Tag.Title : "<untitled>"));
