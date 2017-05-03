@@ -425,8 +425,10 @@ namespace BardDaemon
                     audioFileReader = new AudioFileReader(playlist[nowPlayingPlaylistIndex]);
                     validReaderCreated = true;
                 }
-                catch (System.InvalidOperationException)
+                catch (System.InvalidOperationException exception)
                 {
+                    writeToLog($"Encountered an exception whilst trying to create the AudioFileReader. Exception: {exception.Message}");
+
                     validReaderCreated = false;
                 }
 
